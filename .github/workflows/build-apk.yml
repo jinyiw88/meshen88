@@ -1,0 +1,56 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 17
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Fix Expo package versions
+        run: npx expo install --fix
+
+      - name: Prebuild Android native project
+        run: npx expo prebuild --platform android --clean
+
+      - name: Build Debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Find APK files
+        run: find android/app/build/outputs -name "*.apk" -type f || echo "No APK found"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: insataPic-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: warn
+
+      - name: Upload build outputs (diagnostic)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-outputs
+          path: android/app/build/outputs/
+          if-no-files-found: ignore

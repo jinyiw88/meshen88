@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "insataPic",
+    "slug": "insatapic",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "scheme": "insatapic",
+    "android": {
+      "package": "com.insatapic.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#000000"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "com.insatapic.app"
+    },
+    "plugins": [],
+    "extra": {
+      "router": {
+        "origin": false
+      }
+    }
+  }
+}
