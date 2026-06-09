@@ -24,33 +24,48 @@ jobs:
           distribution: zulu
           java-version: 17
 
-      - name: Install npm dependencies
-        run: npm install
+      # 关键：用 create-expo-app 生成已知可用的基础项目
+      - name: Create Expo base project
+        run: npx create-expo-app@latest insataPic-build --template blank --yes
 
-      - name: Fix Expo package versions
-        run: npx expo install --fix
+      # 覆盖我们的源码
+      - name: Overlay our source code
+        run: |
+          cp App.tsx insataPic-build/App.tsx
+          cp app.json insataPic-build/app.json
+          cp tsconfig.json insataPic-build/tsconfig.json
+          cp -r src insataPic-build/src
 
+      # 用 expo install 安装额外依赖（自动匹配 SDK 版本）
+      - name: Install additional packages
+        working-directory: insataPic-build
+        run: |
+          npx expo install @react-navigation/native @react-navigation/native-stack react-native-screens react-native-safe-area-context @react-native-async-storage/async-storage expo-secure-store
+          npm install zustand dayjs --legacy-peer-deps
+
+      # 生成原生项目
       - name: Prebuild Android native project
+        working-directory: insataPic-build
         run: npx expo prebuild --platform android --clean
 
+      # 构建 APK
       - name: Build Debug APK
-        working-directory: android
+        working-directory: insataPic-build/android
         run: ./gradlew assembleDebug --stacktrace
 
-      - name: Find APK files
-        run: find android/app/build/outputs -name "*.apk" -type f || echo "No APK found"
-
+      # 上传 APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: insataPic-debug-apk
-          path: android/app/build/outputs/apk/debug/*.apk
+          path: insataPic-build/android/app/build/outputs/apk/debug/*.apk
           if-no-files-found: warn
 
+      # 诊断：上传完整构建输出
       - name: Upload build outputs (diagnostic)
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-outputs
-          path: android/app/build/outputs/
+          name: build-outputs-diagnostic
+          path: insataPic-build/android/app/build/outputs/
           if-no-files-found: ignore

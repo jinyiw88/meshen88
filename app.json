@@ -5,7 +5,6 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
-    "scheme": "insatapic",
     "android": {
       "package": "com.insatapic.app",
       "versionCode": 1,
@@ -16,11 +15,6 @@
     "ios": {
       "bundleIdentifier": "com.insatapic.app"
     },
-    "plugins": [],
-    "extra": {
-      "router": {
-        "origin": false
-      }
-    }
+    "plugins": []
   }
 }
